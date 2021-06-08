@@ -4,7 +4,10 @@ import agz.technologies.hashgenerator.databinding.FragmentHomeBinding
 import android.os.Bundle
 import android.view.*
 import android.widget.ArrayAdapter
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
@@ -13,6 +16,8 @@ import kotlinx.coroutines.launch
 
 
 class HomeFragment : Fragment() {
+
+    private val homeViewModel : HomeViewModel by viewModels()
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
@@ -61,13 +66,20 @@ class HomeFragment : Fragment() {
         delay(1500L)
     }
 
-    private fun navigateToSuccess() {
-        findNavController().navigate(R.id.action_homeFragment_to_successFragment)
+    private fun navigateToSuccess(hash: String) {
+        val directions = HomeFragmentDirections.actionHomeFragmentToSuccessFragment(hash)
+        findNavController().navigate(directions)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null // we avoid memory leaks
+    }
+
+    private fun getHashData() : String{
+        val algorithm = binding.autocompleteTextView.text.toString()
+        val plainText = binding.plainText.text.toString()
+        return homeViewModel.getHash(plainText, algorithm)
     }
 
     override fun onResume() {
@@ -83,10 +95,9 @@ class HomeFragment : Fragment() {
         } else {
             lifecycleScope.launch {
                 applyAnimations()
-                navigateToSuccess()
+                navigateToSuccess(getHashData())
             }
         }
-
     }
 
     private fun showSnackBar(message: String) {
@@ -96,7 +107,16 @@ class HomeFragment : Fragment() {
             Snackbar.LENGTH_LONG
         )
         snackBar.setAction("Okay") {}
+        snackBar.setActionTextColor(ContextCompat.getColor(requireContext(), R.color.blue))
             snackBar.show()
+    }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if(item.itemId == R.id.clear_menu){
+            binding.plainText.text.clear()
+            showSnackBar("Cleared.")
+            return true
+        }
+        return true
     }
 }

@@ -12,6 +12,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setTheme(R.style.Theme_HashGenerator)
         setContentView(R.layout.activity_main)
         navController = findNavController(R.id.fragment)
         setupActionBarWithNavController(navController)
